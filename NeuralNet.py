@@ -10,8 +10,12 @@ class NeuralNet:
         self.perceptrons.append(p)
 
     def train(self, inputs, labels):
+        lbl = []
         for p in self.perceptrons:
-            p.train(inputs, np.array(labels[self.perceptrons.index(p)]))
+            for l in labels:
+                lbl.append(l[self.perceptrons.index(p)])
+            p.train(inputs, np.array(lbl))
+            lbl = []
 
     def predict(self, inputs):
         out = []
