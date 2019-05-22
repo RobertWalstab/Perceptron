@@ -27,16 +27,8 @@ def plotting_fkt(new_par, new_val, ax=None):
     return ax
 
 
-def val_splitter(val_fkt,*args, **kwargs):
+def val_splitter(val_fkt, *args, **kwargs):
     ''' '''
-    # Problems with *args
     def ret_fkt(val):
         return val, val_fkt(val, *args, **kwargs)
     return ret_fkt
-
-
-# def plotting_generator(val_fkt, plot_fkt):
-#     ''' '''
-#     def ret_fkt():
-#         return None
-#     return None

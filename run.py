@@ -3,7 +3,7 @@ import building_blocks
 import genplotting
 import ownconstants as ocst
 
-# %matplotlib  # Magic, execute if supported
+# %matplotlib  # Magic command, execute if supported
 d = {'f': 1.93e14, 'tau': ocst.tau, 'psi0': 0.0}
 val_fkt = genplotting.val_splitter(building_blocks.i_tr, **d)
 
