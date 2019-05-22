@@ -25,10 +25,8 @@ class Perceptron(object):
                 prediction = self.predict(inputs)
                 self.weights[1:] += self.learning_rate * (label - prediction) * inputs
                 self.weights[0] += self.learning_rate * (label - prediction)
-
                 a.append(label-prediction)
                 b.append(i)
-        print(b)
         plt.plot(b, a, 'b.')
         plt.title(self.name)
         plt.show()
