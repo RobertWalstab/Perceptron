@@ -118,6 +118,20 @@ def k(f):
     return ang_freq(f) / ocst.c
 
 
+def solve_phase_shift(a, r, phi0, l, n2, lmda, A, p):
+    polynom = np.zeros(4)
+    f3 = a * r
+    f2 = -(f3 * phi0)
+    f1 = (1 - f3)**2
+    f0 = - (f1 * phi0 +
+            (2 * np.pi * l * n2) / (lmda * A) * a**2 * (1 - r**2) * p)
+    polynom[0] = f3
+    polynom[1] = f2
+    polynom[2] = f1
+    polynom[3] = f0
+    return np.roots(polynom)
+
+
 # def coupler():
     
 #     return None

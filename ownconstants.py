@@ -18,3 +18,4 @@ t = np.sqrt(1 - r ** 2)  # Transmission factor
 tau = 1e-9  # Effective free carrier lifetime, [tau] = s
 epsilon0 = 8.854187817e-12  # Intrinsic permittivity [epsilon0] = F/m
 mu0 = 4 * np.pi * 1e-7  # Intrinsic permeability [mu0] = H/m
+lmda = 1550e-6  # Lambda, Operating wavelength [lmda] = m
