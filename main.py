@@ -45,6 +45,21 @@ training_inputs.append(np.array([-2, 2, 2, 2]))
 training_inputs.append(np.array([-3, 3, 3, 3]))
 training_inputs.append(np.array([-4, 4, 4, 4]))
 
+training_inputs.append(np.array([1, 2, 1, 2]))
+training_inputs.append(np.array([2, 1, 2, 1]))
+training_inputs.append(np.array([-1, -2, 2, 1]))
+training_inputs.append(np.array([-2, -1, 2, 1]))
+
+training_inputs.append(np.array([3, 2, 3, 2]))
+training_inputs.append(np.array([4, 2, 4, 2]))
+training_inputs.append(np.array([3, 1, 3, 1]))
+training_inputs.append(np.array([4, 1, 4, 1]))
+
+training_inputs.append(np.array([-3, -2, 3, 2]))
+training_inputs.append(np.array([-4, -2, 4, 2]))
+training_inputs.append(np.array([-3, -1, 3, 1]))
+training_inputs.append(np.array([-4, -1, 4, 1]))
+
 
 # labels = [[1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 1, 1], [1, 1, 1, 1, 0, 0], [1, 1, 1, 1, 1, 1],
 #           [0, 0, 1, 1, 1, 1], [0, 0, 1, 1, 0, 0], [0, 0, 0, 0, 1, 1], [0, 0, 0, 0, 0, 0],
@@ -59,8 +74,10 @@ labels = [[1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 1, 1], [1, 1, 1, 1, 0, 0], [1, 1, 1, 
           [1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 1, 1], [1, 1, 1, 1, 0, 0], [1, 1, 1, 1, 1, 1],
           [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1], [0, 0, 1, 1, 0, 0], [0, 0, 1, 1, 1, 1],
           [1, 0, 0, 0, 0, 0], [1, 0, 0, 0, 1, 1], [1, 0, 1, 1, 0, 0], [1, 0, 1, 1, 1, 1],
-          [0, 1, 0, 0, 0, 0], [0, 1, 1, 0, 1, 1], [0, 1, 1, 1, 0, 0], [0, 1, 1, 1, 1, 1]
-          ]
+          [0, 1, 0, 0, 0, 0], [0, 1, 1, 0, 1, 1], [0, 1, 1, 1, 0, 0], [0, 1, 1, 1, 1, 1],
+          [1, 1, 0, 0, 0, 1], [1, 1, 0, 0, 1, 0], [0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 1],
+          [1, 1, 1, 0, 0, 1], [1, 1, 1, 0, 1, 1], [1, 1, 1, 0, 0, 0], [1, 1, 1, 0, 1, 0],
+          [0, 0, 1, 0, 0, 1], [0, 0, 1, 0, 1, 1], [0, 0, 1, 0, 0, 0], [0, 0, 1, 0, 1, 0]]
 
 perceptron1 = Perceptron(4,1)
 perceptron2 = Perceptron(4,2)
@@ -106,7 +123,7 @@ inputs = np.array([1, 1, 1, 1])
 print(nn.predict(inputs))
 #=> 1
 
-inputs = np.array([2, 3, 2, 3])
+inputs = np.array([3, 2, 3, 2])
 print(nn.predict(inputs))
 #=> 0
 
