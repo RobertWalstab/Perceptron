@@ -1,0 +1,8 @@
+<application>
+  <component name="NotificationConfiguration">
+    <notification groupId="Debugger messages" displayType="TOOL_WINDOW" />
+    <notification groupId="PyCharm Professional Advertiser" displayType="STICKY_BALLOON" />
+    <notification groupId="R Language Support" shouldReadAloud="true" />
+    <notification groupId="Required Plugins" shouldReadAloud="true" />
+  </component>
+</application>
