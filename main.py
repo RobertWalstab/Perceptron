@@ -75,6 +75,22 @@ def convert_to_coordinate(inp):
     return coord
 
 
+def make_binary(x, y):
+    if x >= 0:
+        x1 = 0
+    else:
+        x1 = 1
+    if y >= 0:
+        y1 = 0
+    else:
+        y1 = 1
+    x = list(bin(abs(x)))
+    y = list(bin(abs(y)))
+    x[1] = 0
+    y[1] = 0
+    return [float(x1), float(x[-2]), float(x[-1]), float(y1), float(y[-2]), float(y[-1])]
+
+
 def plot(per, i1, i2):
     x = np.linspace(-4, 4, 100)
     b = per.weights[0] + 0.00000000000000000000000000000001
@@ -88,8 +104,8 @@ def plot(per, i1, i2):
 def make_data():
     global training_inputs
     global labels
-    x = (random.random()-.5)*8
-    y = (random.random()-.5)*8
+    x = random.randint(-2, 2)
+    y = random.randint(-2, 2)
     ax = abs(x)
     ay = abs(y)
     if x >= 0:
@@ -97,43 +113,33 @@ def make_data():
     else:
         l1 = 0
 
-    if y >= 0:
+    if y >= 1.5:
         l2 = 1
     else:
         l2 = 0
 
-    if ax >= 2:
+    if ax >= 1.5:
         l3 = 1
     else:
         l3 = 0
 
-    if ay >= 2:
+    if ay >= 1.5:
         l4 = 1
     else:
         l4 = 0
 
-    if x >= 0:
-        xo = int(x) + 1
-    else:
-        xo = int(x) - 1
-
-    if y >= 0:
-        yo = int(y) + 1
-    else:
-        yo = int(y) - 1
-
-    print(xo, yo, [l1, l2, l3, l4], x, y)
+    #print([l1, l2, l3, l4], x, y)
     labels.append([l1, l2, l3, l4])
-    training_inputs.append(np.array([x, y, ax, ay]))
+    training_inputs.append(np.array(make_binary(x, y)))
     return
 
 
 correct = True
-for index in range(6):
-    perceptron1 = Perceptron(4, "1")
-    perceptron2 = Perceptron(4, "2")
-    perceptron3 = Perceptron(4, "3")
-    perceptron4 = Perceptron(4, "4")
+for index in range(5):
+    perceptron1 = Perceptron(6, "1")
+    perceptron2 = Perceptron(6, "2")
+    perceptron3 = Perceptron(6, "3")
+    perceptron4 = Perceptron(6, "4")
 
     nn = NeuralNet()
 
@@ -148,66 +154,7 @@ for index in range(6):
 
     correct = True
 
-    for t in range(30):
-        for i in range(9):
-            if i != 0:
-                for j in range(9):
-                    if j != 0:
-                        if i < 0:
-                            xtemp = i - 3.5
-                        else:
-                            xtemp = i - 4.5
-                        if j < 0:
-                            ytemp = j - 3.5
-                        else:
-                            ytemp = j - 4.5
-                        axtemp = abs(xtemp)
-                        aytemp = abs(ytemp)
-                        inputs = np.array(awgn([xtemp, ytemp]))
-                        if xtemp >= 0:
-                            l1 = 1
-                        else:
-                            l1 = 0
-
-                        if ytemp >= 0:
-                            l2 = 1
-                        else:
-                            l2 = 0
-
-                        if axtemp >= 2:
-                            l3 = 1
-                        else:
-                            l3 = 0
-
-                        if aytemp >= 2:
-                            l4 = 1
-                        else:
-                            l4 = 0
-
-                        if xtemp >= 0:
-                            xo = int(xtemp) + 1
-                        else:
-                            xo = int(xtemp) - 1
-
-                        if ytemp >= 0:
-                            yo = int(ytemp)
-                        else:
-                            yo = int(ytemp)
-
-                        prediction = predict(nn, inputs, [l1, l2, l3, l4])
-
-                        if prediction != [l1, l2, l3, l4]:
-                            correct = False
-
-                        print(xtemp, ytemp, prediction, prediction == [l1, l2, l3, l4])
-    errorrate.append(len(in_x_f)/(30*64))
     t = np.linspace(0, trainingsize**index, trainingsize**index)
-    '''
-    for p in nn.perceptrons:
-        plt.plot(p.errors, 'b.')
-        plt.title('Perceptron ' + p.name)
-        plt.show()
-    '''
     plt.plot(in_x, in_y, 'g.', label='Correct Predictions')
     plt.plot(out_x, out_y, 'b+', label='Predictions')
     plt.plot(in_x_f, in_y_f, 'r.', label='Incorrect Predictions')
@@ -228,7 +175,8 @@ for index in range(6):
     plot(perceptron3, 3, 4)
     plot(perceptron4, 3, 4)
 
-    plt.ylim(-4, 4)
+    plt.ylim(-2, 2)
+    plt.xlim(-2, 2)
     plt.legend()
     plt.title('Linear Separation with '+str(10**index)+' training-datasets')
     plt.savefig('ressources/Linear Separation with '+str(10**index)+' training-datasets.png')
@@ -241,9 +189,10 @@ for index in range(6):
     in_y_f = []
     in_x = []
     in_y = []
-
+    print(nn.predict(make_binary(-2, -2)))
 t1 = np.linspace(0, 6, 6)
-plt.plot(t1, errorrate)
+
+#plt.plot(t1, errorrate)
 plt.title('Errorrate')
 plt.savefig('ressources/Errorrate.png')
 plt.show()

@@ -19,9 +19,11 @@ class Perceptron(object):
         return activation
 
     def train(self, training_inputs, labels):
+        prediction = 0
         for i in range(self.threshold):
             for inputs, label in zip(training_inputs, labels):
                 prediction = self.predict(inputs)
                 self.weights[1:] += self.learning_rate * (label - prediction) * inputs
                 self.weights[0] += self.learning_rate * (label - prediction)
                 self.errors.append(label-prediction)
+        return prediction
