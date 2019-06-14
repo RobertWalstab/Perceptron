@@ -1,7 +1,9 @@
 <application>
   <component name="libraryTable">
     <library name="R Skeletons">
-      <CLASSES />
+      <CLASSES>
+        <root url="file://$USER_HOME$/Library/Caches/PyCharm2019.1/r_skeletons/960052474" />
+      </CLASSES>
       <SOURCES />
     </library>
   </component>
