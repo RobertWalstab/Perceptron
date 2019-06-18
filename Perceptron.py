@@ -8,7 +8,7 @@ class Perceptron(object):
         self.learning_rate = learning_rate
         self.weights = np.zeros(no_of_inputs + 1)
         self.name = name
-        self.errors = []
+        self.weightlist = []
 
     def predict(self, inputs):
         summation = np.dot(inputs, self.weights[1:]) + self.weights[0]
@@ -21,9 +21,14 @@ class Perceptron(object):
     def train(self, training_inputs, labels):
         prediction = 0
         for i in range(self.threshold):
-            for inputs, label in zip(training_inputs, labels):
-                prediction = self.predict(inputs)
-                self.weights[1:] += self.learning_rate * (label - prediction) * inputs
-                self.weights[0] += self.learning_rate * (label - prediction)
-                self.errors.append(label-prediction)
+            try:
+                for inputs, label in zip(training_inputs, labels):
+                    prediction = self.predict(inputs)
+                    self.weights[1:] += self.learning_rate * (label - prediction) * inputs
+                    self.weights[0] += self.learning_rate * (label - prediction)
+            except TypeError:
+                prediction = self.predict(training_inputs)
+                self.weights[1:] += self.learning_rate * (labels - prediction) * training_inputs
+                self.weights[0] += self.learning_rate * (labels - prediction)
+        self.weightlist.append(self.weights)
         return prediction

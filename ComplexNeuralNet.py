@@ -4,7 +4,7 @@ import numpy as np
 
 class ComplexNeuralNet:
 
-    def __init__(self, layers):
+    def __init__(self):
         self.perceptrons = []
         self.output = []
         self.trained = []
@@ -13,16 +13,19 @@ class ComplexNeuralNet:
         self.perceptrons.append(p)
 
     def train(self, inputs, labels):
+        index = 0
         for inp in inputs:
             self.trained = []
             for p in self.perceptrons:
                 if int(p.name) < 3:
-                    p.train(inp, labels[inputs.index(inp)][self.perceptrons.index(p)])
+                    #print(inp, labels[index][self.perceptrons.index(p)])
+                    p.train(inp, labels[index][self.perceptrons.index(p)])
                 else:
                     if int(p.name) < 7:
-                        self.trained.append(p.train(inp, labels[inputs.index(inp)][self.perceptrons.index(p)]))
+                        self.trained.append(p.train(inp, labels[index][self.perceptrons.index(p)]))
                     else:
-                        p.train(self.trained, labels[inputs.index(inp)][self.perceptrons.index(p)])
+                        p.train(np.array(self.trained), labels[index][self.perceptrons.index(p)])
+        index += 1
 
     def predict(self, inputs):
         out = []
