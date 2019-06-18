@@ -14,9 +14,17 @@ in_y_f = []
 in_x = []
 in_y = []
 errorrate = []
-trainingsize = 10
+trainingsize = 3
+result1 = []
+result2 = []
+result3 = []
+result4 = []
+result5 = []
+result6 = []
+learning = []
 
 
+'''
 def awgn(inp):
     noise = True
     noise_x = 0
@@ -31,7 +39,15 @@ def awgn(inp):
     inp.append(abs(inp[0]))
     inp.append(abs(inp[1]))
     return inp
+'''
 
+'''
+Framework:
+
+make_data():
+    return float
+
+'''
 
 def predict(net, inp, r_w):
     global in_x, in_y, in_x_f, in_y_f, out_x, out_y
@@ -48,7 +64,7 @@ def predict(net, inp, r_w):
         in_y_f.append(inp[1])
     return result
 
-'''
+
 def convert_to_coordinate(inp):
     coord = []
     if inp[0] == 0:
@@ -73,7 +89,6 @@ def convert_to_coordinate(inp):
     #coord.append(signx*(1.5+2*inp[2]+signx2*(-0.5+inp[4])))
     #coord.append(signy*(1.5+2*inp[3]+signy2*(-0.5+inp[5])))
     return coord
-'''
 
 def make_binary(x, y, noise, noisevalue):
     if x >= 0:
@@ -117,7 +132,7 @@ def make_binary(x, y, noise, noisevalue):
     else:
         return [float(x1), float(x[-2]), float(x[-1]), float(y1), float(y[-2]), float(y[-1])]
 
-
+'''
 def plot(per, i1, i2):
     x = np.linspace(-4, 4, 100)
     b = per.weights[0] + 0.00000000000000000000000000000001
@@ -126,7 +141,7 @@ def plot(per, i1, i2):
     lbl = 'Perceptron '+per.name
     plt.plot(x, (-(b / w2) / (b / w1)) * x + (-b / w2), label=lbl)
     return
-
+'''
 
 def make_data(noise, noisevalue):
     global training_inputs
@@ -167,9 +182,11 @@ result1 = []
 result2 = []
 result3 = []
 result4 = []
+result5 = []
+result6 = []
 learning = []
-for ind in range(4):
-    for index in range(5):
+for ind in range(6):
+    for index in range(11):
         noisevalue = ind*0.1
         perceptron1 = Perceptron(6, "1")
         perceptron2 = Perceptron(6, "2")
@@ -183,7 +200,7 @@ for ind in range(4):
         nn.add_perceptron(perceptron3)
         nn.add_perceptron(perceptron4)
         for i in range(trainingsize**index):
-            make_data(1,noisevalue)
+            make_data(1, noisevalue)
 
         nn.train(training_inputs, labels)
 
@@ -225,7 +242,7 @@ for ind in range(4):
         in_y = []
         ne = 0
         nr = 0
-        for i in range(100000):
+        for i in range(10000):
             training_inputs = []
             labels = []
             make_data(1, noisevalue)
@@ -243,6 +260,11 @@ for ind in range(4):
             result3.append(ne/(ne+nr))
         if ind == 3:
             result4.append(ne/(ne+nr))
+        if ind == 4:
+            result5.append(ne/(ne+nr))
+        if ind == 5:
+            result6.append(ne/(ne+nr))
+
 
 
 #t1 = np.linspace(0, 6, 6)
@@ -263,11 +285,14 @@ print(result4)
 plt.xlabel('trainingsize')
 plt.ylabel('errorrate')
 plt.xscale('log')
-plt.plot(learning, result1, 'ro', label='noise 0.1')
-plt.plot(learning, result2, 'bo', label='noise 0.2')
-plt.plot(learning, result3, 'yo', label='noise 0.3')
-plt.plot(learning, result4, 'go', label='noise 0.4')
+plt.plot(learning, result1, 'r', label='noise 0')
+plt.plot(learning, result2, 'b', label='noise 0.1')
+plt.plot(learning, result3, 'y', label='noise 0.2')
+plt.plot(learning, result4, 'g', label='noise 0.3')
+plt.plot(learning, result5, 'm', label='noise 0.4')
+plt.plot(learning, result6, 'k', label='noise 0.5')
 plt.title('Error rate vs trainingsize')
+plt.legend()
 plt.grid(True)
 plt.show()
 
