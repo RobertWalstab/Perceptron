@@ -7,7 +7,7 @@ import ownconstants as ocst
 d = {'f': 1.93e14, 'tau': ocst.tau, 'psi0': 0.0}
 val_fkt = genplotting.val_splitter(building_blocks.i_tr, **d)
 
-a = np.arange(0, 1, 0.01)
+a = np.arange(0, 2.2, 0.2)
 
 ax1 = None
 for v in a:
