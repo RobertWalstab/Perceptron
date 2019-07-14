@@ -1,10 +1,12 @@
+""" Written by Gabriel Teuchert, adapted towards PEP8 by Olaf Groescho. """
+
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
 class MrrThreshold:
 
-    def run(self, p_in):
+    def run(self, p_in=np.arange(0, 7, 0.02)):
 
         # Demanding Parameters given by the Paper
         # (THE DRxEAM: an integrated Photonic Thresholder)
@@ -22,8 +24,7 @@ class MrrThreshold:
         a = np.sqrt(np.exp(-2.4 * L))  # round trip loss#
 
         # Input Power, discredited it certain steps#
-        p_in = np.array([(p_in + 2.5)])  # arange(0, 7, 0.02)
-        print('p_in='+str(p_in))
+        # p_in = np.array([p_in])  # arange(0, 7, 0.02)
         # Output Power in 3D for 3 possible stable solutions of phi
         p_out = [.0, .0, .0]
         # phase of Wave 1 determined by future calculation
@@ -120,8 +121,7 @@ class MrrThreshold:
             p_out.append(A * (1 - A) * p_in[i] * np.absolute(exp)**2)
 
             i += 1
-        # plt.plot(p_out)
-        # plt.show()
+        plt.plot(p_out)
+        plt.show()
         # print(index2)
-        print('pout='+str(p_out))
-        return p_out[-1]
+        return p_out

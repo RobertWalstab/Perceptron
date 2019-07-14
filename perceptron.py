@@ -9,6 +9,9 @@ __author__ = 'Olaf Groescho'
 
 import numpy as np
 
+import mrr_thresholder_final
+import fredkin
+
 
 class Perceptron:
     """ Whole perceptron, including a set of synapses and addition and
@@ -18,6 +21,7 @@ class Perceptron:
         self.no_of_inputs = no_of_inputs
         self.synapses = list([Synapse(name='synapse_'+str(n), *args, **kwargs)
                               for n in range(no_of_inputs)])
+        self.thresholder = mrr_thresholder_final.MrrThreshold()
         self.name = name
 
     def predict(self, inputs):
@@ -32,7 +36,7 @@ class Perceptron:
         if isinstance(inputs, list):
             if len(inputs) >= self.no_of_inputs:
                 s = self._sum_outputs(inputs)
-                return self._gauge(s)
+                return self._gauge(s)  # self.thresholder.run(s)
             else:
                 print("Less inputs than synapses.")
                 raise ValueError
@@ -57,7 +61,7 @@ class Perceptron:
                 print("Adapt weights in synapses")
                 honey = list(zip(training_inputs[:minimum], labels[:minimum]))
                 s = self._sum_outputs(training_inputs)
-                predicted = self._gauge(s)
+                predicted = self._gauge(s)  # thresholder.run(s)
                 _ = [self.synapses[n].adjust(predicted, *honey[n])
                      for n in range(minimum)]
             else:
@@ -75,7 +79,7 @@ class Perceptron:
         return np.sum(outputs)
 
     def _gauge(self, bushel):
-        ''' Implements the thresholder. '''
+        ''' Models the thresholder. '''
         if bushel > 0:
             activation = 1
         else:
@@ -87,28 +91,17 @@ class Synapse:
     """ Implements synapse circuit as drawn in
     'A coherent Perceptron for all-Optical Learning' section 2.3 (page 9). """
 
-    def __init__(self, name,
-                 coupler_in=None, coupler_out=None,
-                 amplifier=None, *args, **kwargs):
+    def __init__(self, name, *args, **kwargs):
         self.name = name
-        if amplifier:
-            self.amp = amplifier
-        else:
-            self.amp = ProgrammableAmplifier('prog_gain_amp', *args, **kwargs)
-        if coupler_in:
-            self.coupler_in = coupler_in
-        else:
-            self.coupler_in = Coupler(name='c_in')
-        if coupler_out:
-            self.coupler_out = coupler_out
-        else:
-            self.coupler_out = Coupler(name='c_out')
+        self.amp = ProgrammableAmplifier('prog_gain_amp', *args, **kwargs)
+        self.coupler_in = Coupler(name='c_in')
+        self.coupler_out = Coupler(name='c_out')
+        self.gate = fredkin.Fredkin()
 
     def out(self, signal_in, expected=0, predicted=0):
         ''' Working mode, returns the weighted output.'''
         _, transformee, _, _, _ = self._receive(signal_in, expected, predicted,
                                                 do_train=False)
-        # print('transformee = '+str(transformee))
         o = self.amp.amplify(transformee)
         return o
 
@@ -117,7 +110,6 @@ class Synapse:
 
         Paramerters:
         signal_in, expected, predicted : All floats. '''
-        # print('Alter weight')
         input_signals = self._receive(signal_in, expected, predicted,
                                       do_train=True)
         update_val = self._process_logic(input_signals)
@@ -139,7 +131,6 @@ class Synapse:
         expected, predicted, do_train: Forwarded, typed as in input.
         '''
         control, transformee = self.coupler_in.couple(signal_in, 0)
-        # print('transformee = '+str(transformee))
         return control, transformee, expected, predicted, do_train
 
     def _process_logic(self, control, expected, predicted, do_train):
@@ -155,11 +146,12 @@ class Synapse:
         u : Update value, float.
         '''
 
+        switch = self.fredkin.calculate_fredkin
         refused, choosen = switch(control, 0, expected)
-        # print('choosen, refused '+str(choosen)+' '+str(refused))
+        print('choosen, refused '+str(choosen)+' '+str(refused))
         thwart = shift_sig(refused)
         dispose, attendance = switch(thwart, choosen, predicted)
-        # print('attendance, dispose '+str(attendance)+' '+str(dispose))
+        print('attendance, dispose '+str(attendance)+' '+str(dispose))
         _, update = switch(attendance, 0, do_train)
         return update
 
@@ -169,25 +161,28 @@ class Coupler:
     Equations are given in "A coherent Perceptron for all-Optical Learning"
     equation (8)"""
 
-    def __init__(self, name, mixing_angle=0.25*np.pi):
+    def __init__(self, name, mixing_angle=0.5*np.pi):
         self.name = name
         self.theta = mixing_angle
 
-    def couple(self, in_1, in_2, phase=None):
+    def couple(self, in_1, in_2, mixing_angle=None):
         ''' Mixes two input signals into two output signals.
 
         Paramerters :
         in_1, in_2 : Signal amplitudes, float values.
         phase : Phase difference between in_1 and in_2 in radiant.
         '''
-        if phase is None:
-            phase = self.theta
-            # print('phase changed')
-        splitted = self._couple(in_1, in_2, phase)
-        # print('coupler '+str(self.name)+':in_1='+str(in_1)+',in_2='+str(in_2))
-        # print('mixing angle = '+str(phase/np.pi*180))
-        # print('after splitting: '+str(splitted))
-        return splitted
+        if mixing_angle is None:
+            mixing_angle = self.theta
+        out_1, out_2 = self._couple(in_1, in_2, mixing_angle)
+        return out_1, out_2
+
+    def delay(self, mixing_angle):
+        ''' Returns the accumulated phase delay of both output signals.
+
+        Paramerters:
+        mixing_angle : initial phase shift of splitting angle control '''
+        return self._phase_delay(mixing_angle), self._phase_delay(0)
 
     def _couple(self, in_1, in_2, theta):
         ''' Mixes two input signals into two output signals.
@@ -200,8 +195,56 @@ class Coupler:
         Output: out_1, out_2 : Output signal amplitudes.
         '''
 
-        out_2 = in_1 * np.cos(theta) - in_2 * np.sin(theta)
-        out_1 = in_1 * np.sin(theta) + in_2 * np.cos(theta)
+        out_1 = in_1 * np.cos(theta) - in_2 * np.sin(theta)
+        out_2 = in_1 * np.sin(theta) + in_2 * np.cos(theta)
+        return out_1, out_2
+
+    def _phase_delay(initial=0):
+        ''' Returns phase shift caused by coupler.
+        Guessed operation principle. '''
+        delay = 0.5 * np.pi + initial
+        return delay
+
+
+class BiasRouter:
+    """ Models function of bias coupler. """
+
+    def __init__(self, name, mixing_angle=0.5*np.pi):
+        self.name = name
+        self.theta = mixing_angle
+
+    def couple(self, in_1, in_2, mixing_angle=None):
+        ''' Mixes two input signals into two output signals.
+
+        Paramerters :
+        in_1, in_2 : Signal amplitudes, float values.
+        phase : Phase difference between in_1 and in_2 in radiant.
+        '''
+        if mixing_angle is None:
+            mixing_angle = self.theta
+        out_1, out_2 = self._couple(in_1, in_2, mixing_angle)
+        return out_1, out_2
+
+    def delay(self, mixing_angle):
+        ''' Not implementated.
+
+        Paramerters:
+        mixing_angle : initial phase shift of splitting angle control '''
+        return None
+
+    def _couple(self, in_1, in_2, theta):
+        ''' Mixes two input signals into two output signals.
+        Implements the coupler.
+
+        Parameters:
+        in_1, in_2 : Signal amplitudes, float values.
+        theta : Angle, fraction or multiple of pi.
+
+        Output: out_1, out_2 : Output signal amplitudes.
+        '''
+
+        out_1 = np.sqrt(in_1**2 + in_2**2 + 2 * in_1 * in_2 * np.cos(theta))
+        out_2 = np.sqrt(in_1**2 + in_2**2 - 2 * in_1 * in_2 * np.cos(theta))
         return out_1, out_2
 
 
@@ -253,8 +296,6 @@ class Amplifier:
         a : Amplified signal amplitude
         '''
         amplified = self._amplify(signal_in, bias)
-        # print('Amplifier '+str(self.name))
-        # print('bias = '+str(bias)+', amplified = '+str(amplified))
         return amplified
 
     def _amplify(self, x, b):
@@ -292,9 +333,25 @@ class Amplifier:
         amplified = gain(b) * x
         return amplified
 
+    def _phase_delay(self,):
+        ''' Guessed behavior. '''
+        initial_phase_splitter_shift = 1.75
+        coupling_shift = 0.5
+        resonator_shift = 2  # At resonance
+        guide_shift = 0  # Approximated
+        combiner_shift = 1-initial_phase_splitter_shift
+
+        delay = np.pi * (initial_phase_splitter_shift
+                         + coupling_shift
+                         + resonator_shift
+                         + guide_shift
+                         + combiner_shift
+                         + coupling_shift)
+        return delay
+
     def alter_value(self, bias):
-        # print('Plain amplifier has no storage. ')
-        # print('Value vanishes. ')
+        print('Plain amplifier has no storage. ')
+        print('Value vanishes. ')
         return None
 
 
@@ -304,36 +361,19 @@ class ProgrammableAmplifier:
     Contains two amplifiers, an OPO for storing the phase and constant bias
     signal for controlling amplifiers. """
 
-    def __init__(self, name, const_bias=0.95*np.sqrt(2),
-                 variable_bias_amplitude=0.05*np.sqrt(2),
-                 amplifier_1=None, amplifier_2=None,
-                 storage=None,
-                 coupler_sig=None, coupler_bias=None,
+    def __init__(self, name, const_bias=1.0,  # *np.sqrt(2),
+                 variable_bias_amplitude=0.1,  # *np.sqrt(2),
                  *args, **kwargs):
         self.name = name
         self.const_bias = const_bias
         self.var_bias = variable_bias_amplitude
-        if coupler_sig:
-            self.coupler_sig = coupler_sig
-        else:
-            self.coupler_sig = Coupler(name='coupler_sig')
-        if coupler_bias:
-            self.coupler_bias = coupler_bias
-        else:
-            self.coupler_bias = Coupler('coupler_bias')
-        if amplifier_1:
-            self.amp1 = amplifier_1
-        else:
-            self.amp1 = Amplifier('amp1')
-        if amplifier_2:
-            self.amp2 = amplifier_2
-        else:
-            self.amp2 = Amplifier('amp2')
-        if storage:
-            self.storage = storage
-        else:
-            self.storage = OpticalStorage('opo_storage', *args, **kwargs)
-        # print('initial const_bias = '+str(self.const_bias))
+        self.coupler_sig = Coupler(name='coupler_sig',
+                                   mixing_angle=0.5*np.pi)
+        self.coupler_bias = BiasRouter(name='coupler_bias',
+                                       mixing_angle=1.75*np.pi)
+        self.amp1 = Amplifier('amp1')
+        self.amp2 = Amplifier('amp2')
+        self.storage = OpticalStorage('opo_storage', *args, **kwargs)
 
     def amplify(self, signal_in):
         ''' Equips signal with positive or negative weight.
@@ -342,21 +382,21 @@ class ProgrammableAmplifier:
         another signal. The phase shift is provided by phase storage.
         The constant phase signals amplitude is fixed as design parameter.
         The variable phase signals amplitude is fixed as well. '''
-        # print('Amplify according stored phase')
-        # print('and according applied amplifiers.')
-        # print('const_bias = '+str(self.const_bias))
-        # print('stored angle = '+str(self.storage.out()/np.pi*180))
-        bias_pos, bias_neg = self.coupler_bias.couple(self.const_bias,
-                                                      self.var_bias,
-                                                      phase=self.storage.out())
-        # print('bias_pos='+str(bias_pos)+', bias_neg='+str(bias_neg))
+        phase = self.storage.out()
+        bias_pos, bias_neg = self.coupler_bias.couple(self.var_bias,
+                                                      self.const_bias,
+                                                      mixing_angle=phase)
         pos_amplified = self.amp1.amplify(signal_in, bias_pos)
         signal_negated = shift_sig(signal_in)
         neg_amplified = self.amp2.amplify(signal_negated, bias_neg)
-        # print('pos_amplified = '+str(pos_amplified)
-        #       + ', neg_amplified = '+str(neg_amplified))
         amplified_total = pos_amplified + neg_amplified
-        # print('amplified_total = '+str(amplified_total))
+        print('signal_in='+str(signal_in)+'\n'
+              + ', mixing_angle='+str(phase/np.pi*180)+'\n'
+              + ', const_bias='+str(self.const_bias)
+              + ', var_bias='+str(self.var_bias)+'\n'
+              + ', bias_pos='+str(bias_pos)
+              + ', bias_neg='+str(bias_neg)+'\n'
+              + ', amplified_total='+str(amplified_total))
         return amplified_total
 
     def alter_value(self, pulse):
@@ -369,7 +409,7 @@ class OpticalStorage:
     """ Implements NOPO for storing phases.
     Further information in section 2.2 of
     'A coherent Perceptron for all-Optical Learning' """
-    def __init__(self, name, phase_stored=np.pi):
+    def __init__(self, name, phase_stored=0):
         self.name = name
         self.phase = phase_stored
         self.phase_min = 0
@@ -380,11 +420,11 @@ class OpticalStorage:
     def alter_value(self, pulse):
         ''' Alters the stored phase value in a restricted manner. '''
         if pulse < - self.threshold:
-            if self.phase > self.phase_min
-            self.phase -= self.step
+            if self.phase > self.phase_min:
+                self.phase -= self.step
         if pulse > self.threshold:
-            if self.phase < self.phase_max
-            self.phase += self.step
+            if self.phase < self.phase_max:
+                self.phase += self.step
         return None
 
     def out(self):

@@ -15,6 +15,10 @@ import perceptron
 
 def testing_perceptron():
 
+    p0 = perceptron.Perceptron('per0', 1, phase_stored=0.0*np.pi)
+    result0 = p0.predict([1, 0])
+    print('result0 = '+str(result0))
+
     p1 = perceptron.Perceptron('per1', 1, phase_stored=0.15*np.pi)
     result1 = p1.predict([1, 0])
     print('result1 = '+str(result1))
@@ -35,6 +39,10 @@ def testing_perceptron():
     result5 = p5.predict([1, 0])
     print('result5 = '+str(result5))
 
+    p6 = perceptron.Perceptron('per6', 1, phase_stored=0.5*np.pi)
+    result6 = p6.predict([1, 0])
+    print('result6 = '+str(result6))
+
     return None
 
 
@@ -43,7 +51,7 @@ def testing_prog_amplifier():
     amplifier_name = 'test_prog_gain_amp'
     prog_gain_amp = perceptron.ProgrammableAmplifier(name=amplifier_name)
     opo_phase = np.arange(-np.pi, np.pi, 0.01)
-  
+
     def extract_bias(phase):
         storage = prog_gain_amp.storage
         storage._set_phase(phase)
@@ -62,3 +70,26 @@ def testing_prog_amplifier():
     ax.plot(opo_phase, neg_biases, label='neg biases')
     ax.legend()
     return ax
+
+
+def test_coupler(in_1, in_2, ax=None, p=None):
+    if p is None:
+        p = np.arange(0, 2*np.pi, 0.01)
+    c = perceptron.Coupler('Testing Coupler')
+    print(c.couple(1, 0.5, 0.25*np.pi))
+    couple = (lambda x: c._couple(in_1, in_2, x))
+    outputs = list(zip(*map(couple, p)))
+    outs_1 = np.array(list(outputs[0]))
+    outs_2 = np.array(list(outputs[1]))
+
+    if ax is None:
+        f = plt.figure()
+        ax = f.add_subplot(111)
+        ax.set_title('Input1 = '+str(in_1)+', Input2 = '+str(in_2))
+    ax.plot(p, outs_1, label='Output1')
+    ax.plot(p, outs_2, label='Output2')
+    ax.axvline(x=0.25*np.pi, label='0.25*pi')
+    ax.axvline(x=0.5*np.pi, label='0.5*pi')
+    ax.axvline(x=1.75*np.pi, label='1.75*pi')
+    ax.legend()
+    return ax, outs_1, outs_2
