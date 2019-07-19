@@ -7,7 +7,8 @@ def single_value_fkt(par, *args, **kwargs):
     return 1
 
 
-def plotting_fkt(new_par, new_val, ax=None):
+def append_plot(new_par, new_val, ax=None):
+    ''' Append if available, otherwise make new plot. '''
     par_array = None
     val_array = None
     if ax is None:
@@ -28,7 +29,27 @@ def plotting_fkt(new_par, new_val, ax=None):
 
 
 def val_splitter(val_fkt, *args, **kwargs):
-    ''' '''
+    ''' Applies first argument to function and 
+    returns argument and saturated function. '''
+    
     def ret_fkt(val):
         return val, val_fkt(val, *args, **kwargs)
     return ret_fkt
+
+
+def plot_function(x_vals, x_handle, ax=None, *args, **kwargs):
+    ''' Plots function over input values.
+    Paramerters:
+    x_vals : list - like
+    x_handle : Function object, only x parameter missing. 
+
+    Output:
+    ax : Matplotlib axis object. '''
+    
+    if ax is None:
+        f = plt.figure()
+        ax = f.add_subplot(111)
+    ax.plot(x_vals, list(map(x_handle, x_vals)),
+            *args, **kwargs)
+    ax.legend()
+    return ax
