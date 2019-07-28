@@ -16,7 +16,8 @@ p_test = perceptron.Perceptron('per0', no_of_inputs=1,
                                phase_stored=0.0*np.pi)
 
 
-def testing_perceptron():
+def testing_perceptron_1():
+    ''' Generates perceptrons and test if prediction outputs result. '''
 
     p0 = perceptron.Perceptron('per0', no_of_inputs=1,
                                phase_stored=-0.1*np.pi)
@@ -53,6 +54,20 @@ def testing_perceptron():
     result6 = p6.predict([1, 0])
     print('result6 = '+str(result6))
 
+    return None
+
+
+def testing_perceptron_2():
+    ''' Tests generation of perceptron with 4 synapses
+    and its prediction and training. '''
+    p = perceptron.Perceptron(name='neu', no_of_inputs=4)
+    print(p.predict([0, 1, 1, 0]))
+    p.train(training_inputs=[1, 0, 1, 0], label=0)
+    p.train(training_inputs=[0, 1, 1, 0], label=1)
+    print(p.synapses[0].amp.storage.phase)
+    print(p.synapses[1].amp.storage.phase)
+    print(p.synapses[2].amp.storage.phase)
+    print(p.synapses[3].amp.storage.phase)
     return None
 
 
