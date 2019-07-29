@@ -4,6 +4,8 @@ import numpy as np
 
 
 class MrrThreshold:
+    
+P_in       # Input Power, discredited it certain steps
 
 A           =   0.440                          # coupling ratio
 r_1         =   0.975                          # coupling ratio1
@@ -16,7 +18,6 @@ L           =   2.5 * np.pi * R                # effektive länge
 n_2         =   4.2e-17                        # refractive index
 n_1         =   2.45                           # refractive index SOI strip waveguide platform
 a           =   np.sqrt(np.exp(-2.4 * L))      # round trip loss
-P_in        =   np.arange(0, 10, 0.0002)       # Input Power, discredited it certain steps
 P_out       =   [.0]                           # Output Power in 3D for 3 possible stable solutions of phi
 phi_1       =   [.0, .0, .0]                   # phase of Wave 1          #determined by future calculation
 phi_2       =   [.0, .0, .0]                   # phase of Wave 2
@@ -44,19 +45,19 @@ coeff_2[0]  = a * r_2
 coeff_2[1]  = -(a * r_2 * phi_0)
 coeff_2[2]  = (1 - a * r_2)**2
 
-# -------------------------- just a bunch of variables i use as buffer memory -----------------------------------------
+# -------------------------- just a bunch of variables I use as buffer memory -----------------------------------------
 
 t           = [.0, .0, .0]
 phi_1_r     = .0
 phi_2_r     = .0
-# i           = 0
+# i         = 0
 
 
 coeff_1[3] = -(1 - a * r_1) ** 2 * phi_0 - (
-    ((2 * np.pi * L * n_2) / (lmda * A)) * a ** 2 * (1 - r_2 ** 2) * (1- A) * P_in[i] / (A_eff * 1000))
+    ((2 * np.pi * L * n_2) / (lmda * A)) * a ** 2 * (1 - r_2 ** 2) * (1- A) * P_in / (A_eff * 1000))
 
 coeff_2[3] = (-(1 - a * r_2) ** 2 * phi_0 - 
-    ((2 * np.pi * L * n_2) / (lmda * A)) * a ** 2 * (1 - r_1 ** 2) * A * P_in[i] / (A_eff * 1000))
+    ((2 * np.pi * L * n_2) / (lmda * A)) * a ** 2 * (1 - r_1 ** 2) * A * P_in / (A_eff * 1000))
 
 phi_1 = np.roots(coeff_1)
 phi_2 = np.roots(coeff_2)
