@@ -1,4 +1,4 @@
-""" Written by Gabriel Teuchert, adapted towards PEP8 by Olaf Groescho. """
+""" Written by Gabriel Teuchert, adapted towards PEP8 by Gabriel Teuchert. """
 
 import numpy as np
 
