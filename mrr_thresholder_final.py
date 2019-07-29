@@ -81,11 +81,12 @@ class MrrThreshold:
 
         phi_1 = np.roots(coeff_1)
         phi_2 = np.roots(coeff_2)
+        
         for i in range(2, -1, -1):
             if(np.imag(phi_1[i]) == 0):
                 phi_1_r = phi_1[i]
             if(np.imag(phi_2[i]) == 0):
-                phi_2_r = phi_1[i]
+                phi_2_r = phi_2[i]
 
         # to calculate t_1 from Equ. 6)
         exp = np.exp(1j * (np.pi + phi_1_r))  # just to split up Equ. 5
@@ -95,12 +96,12 @@ class MrrThreshold:
 
         # to calculate t_2 from Equ. 6)
         exp = np.exp(1j * (np.pi + phi_2_r))  # same over here
-        t_2 = (exp * (a - r_2 * np.exp(-1j * phi_2_r))
-               / (1 - a * r_2 * np.exp(1j * phi_2_r)))
+        t_2 = (exp * (a - r_2 * np.exp(-1*j * phi_2_r))
+               / (1 - a * r_2 * np.exp(1*j * phi_2_r)))
 
         # all for sake to solve for p_out by Equ. 6)
         # no reason that this is called >exp< i just need another variable
-        exp = np.exp(1j * psi_b)
+        exp = np.exp(1j * psi_b
         exp = t_1 - exp * t_2
         p_out = (A * (1 - A) * p_in * np.absolute(exp)**2)
 
