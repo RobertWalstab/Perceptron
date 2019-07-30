@@ -1,4 +1,4 @@
-""" Written by Gabriel Teuchert, adapted towards PEP8 by Gabriel Teuchert. """
+""" Written by Gabriel Teuchert"""
 
 import numpy as np
 
@@ -7,8 +7,8 @@ class MrrThreshold:
     
 P_in       # Input Power, discredited it certain steps
 
-A           =   0.440                          # coupling ratio
-r_1         =   0.975                          # coupling ratio1
+A           =   0.455                          # coupling ratio
+r_1         =   0.987                          # coupling ratio1
 r_2         =   0.979                          # coupling ratio2
 psi_b       =  -0.0667                         # additional phase bias
 phi_0       =  -0.0894                         # initial phaseshift
@@ -22,7 +22,7 @@ P_out       =   [.0]                           # Output Power in 3D for 3 possib
 phi_1       =   [.0, .0, .0]                   # phase of Wave 1          #determined by future calculation
 phi_2       =   [.0, .0, .0]                   # phase of Wave 2
 
-A_eff       = 1e-14
+A_eff       = 1.4e-14
 
 # -------------------------- parameters depending on the MRR and coupling between MRR and MZI (WAVE 1) -----------------
 
