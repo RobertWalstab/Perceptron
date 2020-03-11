@@ -10,6 +10,14 @@
           <option name="url" value="https://github.com/GaTe92/PhysicalLayer.git" />
           <option name="userName" value="" />
         </UrlAndUserName>
+        <UrlAndUserName>
+          <option name="url" value="https://github.com/eddymina/ECG_Classification_Pytorch" />
+          <option name="userName" value="" />
+        </UrlAndUserName>
+        <UrlAndUserName>
+          <option name="url" value="https://github.com/eddymina/ECG_Classification_Pytorch.git" />
+          <option name="userName" value="" />
+        </UrlAndUserName>
       </list>
     </option>
     <option name="cloneParentDir" value="$USER_HOME$/Documents/TUD/6_Semester/Hauptseminar/ONN/Programm" />
